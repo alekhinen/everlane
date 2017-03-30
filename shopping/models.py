@@ -18,7 +18,7 @@ class ShoppingCart(models.Model):
         A shopping cart for a specific user.
     """
     owner = models.OneToOneField(User, related_name="shopping_cart")
-    products = models.ManyToManyField(Product, related_name="shopping_carts", null=True, blank=True)
+    products = models.ManyToManyField(Product, related_name="shopping_carts", blank=True)
 
     def purchase(self):
         """
@@ -37,3 +37,12 @@ class ShoppingCart(models.Model):
             Remove a product from this cart.
         """
         pass
+
+
+class PurchaseHistory(models.Model):
+    """
+        The purchase history for a specific user.
+    """
+    owner = models.ForeignKey(User, related_name="purchase_history")
+    created = models.DateTimeField(auto_now_add=True)
+    products = models.ManyToManyField(Product, related_name="purchase_histories")
