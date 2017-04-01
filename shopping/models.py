@@ -19,7 +19,7 @@ class ShoppingCart(models.Model):
         A shopping cart for a specific user.
     """
     owner = models.OneToOneField(User, related_name="shopping_cart")
-    products = models.ManyToManyField(Product, related_name="shopping_carts", blank=True)
+    products = models.ManyToManyField(Product, related_name="shopping_carts", blank=True, through="Purchasable")
 
     def purchase(self):
         """
@@ -27,29 +27,49 @@ class ShoppingCart(models.Model):
         """
         pass
 
-    def add_product(self, product_id):
+    def add_product(self, product_id, quantity=1):
         """
             Add a product to this cart.
             :returns: the current list of products in the cart.
         """
         try:
-            self.products.add(Product.objects.get(pk=product_id))
-            self.save()
+            product = Product.objects.get(pk=product_id)
+            remaining_units = product.available_inventory - quantity
+
+            if remaining_units > 0:
+                purchasable = Purchasable(product=product, shopping_cart=self, quantity=quantity)
+                purchasable.save()
+            else:
+                raise Exception("Too many units of {0} selected!".format(product.title))
+
             return self.products.all()
         except ObjectDoesNotExist:
             raise Exception("Cannot add a non-existent product!")
 
 
-    def remove_product(self, product_id):
+    def remove_product(self, product_id, quantity=1):
         """
             Remove a product from this cart.
         """
         try:
-            self.products.remove(Product.objects.get(pk=product_id))
-            self.save()
+            product = Product.objects.get(pk=product_id)
+            try:
+                purchasable = Purchasable.objects.get(product=product, shopping_cart=self)
+                purchasable.delete()
+            except ObjectDoesNotExist:
+                print "Purchasable object not found, ignoring."
             return self.products.all()
         except ObjectDoesNotExist:
-            raise Exception("Cannot remove a non-existent product!")
+            raise Exception("Cannot remove a non-existent product in the cart!")
+
+
+class Purchasable(models.Model):
+    """
+        The through table for products that are in a shopping cart.
+    """
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
 
 
 class PurchaseHistory(models.Model):

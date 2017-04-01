@@ -26,7 +26,7 @@ class ShoppingCartTest(TestCase):
         self.assertEqual(products[1].title, self.button_down.title)
 
         # adding a product that does not exist should throw a custom exception.
-        with self.assertRaisesRegexp(Exception, "non-existent product!"):
+        with self.assertRaisesRegexp(Exception, "non-existent product"):
             self.shopping_cart.add_product(-20)
 
     def test_remove_products(self):
@@ -44,5 +44,5 @@ class ShoppingCartTest(TestCase):
         self.assertEqual(products[0].title, self.button_down.title)
 
         # remove a product that does not exist should throw a custom exception.
-        with self.assertRaisesRegexp(Exception, "non-existent product!"):
+        with self.assertRaisesRegexp(Exception, "non-existent product"):
             self.shopping_cart.remove_product(-20)
