@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Product(models.Model):
@@ -26,17 +27,29 @@ class ShoppingCart(models.Model):
         """
         pass
 
-    def addProduct(self, product_id):
+    def add_product(self, product_id):
         """
             Add a product to this cart.
+            :returns: the current list of products in the cart.
         """
-        pass
+        try:
+            self.products.add(Product.objects.get(pk=product_id))
+            self.save()
+            return self.products.all()
+        except ObjectDoesNotExist:
+            raise Exception("Cannot add a non-existent product!")
 
-    def removeProduct(self, product_id):
+
+    def remove_product(self, product_id):
         """
             Remove a product from this cart.
         """
-        pass
+        try:
+            self.products.remove(Product.objects.get(pk=product_id))
+            self.save()
+            return self.products.all()
+        except ObjectDoesNotExist:
+            raise Exception("Cannot remove a non-existent product!")
 
 
 class PurchaseHistory(models.Model):
