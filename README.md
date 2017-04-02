@@ -18,6 +18,9 @@ to stop work after the main features were implemented.
 - run `pip install -r requirements.txt`.
 - Run `python manage.py migrate` from the top level directory.
 
+# To Run Tests
+- run `python manage.py test`
+
 # For Database Management
 - Run `python manage.py createsuperuser` to create an administrator account.
 - Run `python manage.py runserver` and head to `http://127.0.0.1:8000/admin` (or wherever the server is running).
