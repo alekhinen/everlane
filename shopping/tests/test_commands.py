@@ -36,5 +36,7 @@ class CommandTestCase(TestCase):
         self.shopping_cart.purchase()
         out = StringIO()
         call_command("view_purchase_history", str(self.user.pk), stdout=out)
-        print out.getvalue()
-
+        out_value = out.getvalue()
+        self.assertIn("Total Cost: 315.00", out_value)
+        self.assertIn("Product: velvet button down", out_value)
+        self.assertIn("Product: black shirt,", out_value)
