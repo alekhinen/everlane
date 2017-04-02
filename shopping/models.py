@@ -98,6 +98,7 @@ class PurchaseHistory(models.Model):
     """
         The purchase history for a specific user.
     """
+    # TODO: perhaps the related_name should be changed to something else.
     owner = models.ForeignKey(User, related_name="purchase_history")
     created = models.DateTimeField(auto_now_add=True)
     products = models.ManyToManyField(Product, related_name="purchase_histories", through="Purchased")

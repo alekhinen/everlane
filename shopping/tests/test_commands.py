@@ -1,6 +1,5 @@
 from django.test import TestCase
 from factories import UserFactory, ProductFactory, ShoppingCartFactory, PurchaseHistoryFactory
-from shopping.management.commands import add_to_cart, purchase, remove_from_cart, view_purchase_history
 from django.core.management import call_command
 
 class CommandTestCase(TestCase):
@@ -18,3 +17,14 @@ class CommandTestCase(TestCase):
         call_command("add_to_cart",'{0}'.format(self.user.pk), '{0}'.format(self.shirt.pk), '5')
         products = self.shopping_cart.products.all()
         self.assertEqual(len(products), 1)
+
+    def test_remove_from_cart(self):
+        self.shopping_cart.add_product(self.button_down.pk, 1)
+        call_command("remove_from_cart", str(self.user.pk), str(self.button_down.pk))
+        self.assertEqual(len(self.shopping_cart.products.all()), 0)
+
+    def test_purchase(self):
+        self.shopping_cart.add_product(self.button_down.pk, 1)
+        self.shopping_cart.add_product(self.shirt.pk, 3)
+        call_command("purchase", str(self.user.pk))
+        self.assertEqual(len(self.user.purchase_history.all()), 1)
