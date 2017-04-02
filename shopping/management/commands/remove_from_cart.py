@@ -20,7 +20,7 @@ class Command(BaseCommand):
         try:
             products = user.shopping_cart.remove_product(product_id)
         except:
-            raise CommandError('Product {0} cannot be added to the cart!'.format(product_id))
+            raise CommandError('Product {0} cannot be removed from the cart!'.format(product_id))
 
         success_message = 'Removed product for a total of {0} in the cart.'.format(len(products))
         self.stdout.write(self.style.SUCCESS(success_message))
