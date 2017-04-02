@@ -1,6 +1,7 @@
 from django.test import TestCase
 from factories import UserFactory, ProductFactory, ShoppingCartFactory, PurchaseHistoryFactory
 from django.core.management import call_command
+from StringIO import StringIO
 
 class CommandTestCase(TestCase):
     def setUp(self):
@@ -28,3 +29,12 @@ class CommandTestCase(TestCase):
         self.shopping_cart.add_product(self.shirt.pk, 3)
         call_command("purchase", str(self.user.pk))
         self.assertEqual(len(self.user.purchase_history.all()), 1)
+
+    def test_view_purchase_history(self):
+        self.shopping_cart.add_product(self.button_down.pk, 2)
+        self.shopping_cart.add_product(self.shirt.pk, 1)
+        self.shopping_cart.purchase()
+        out = StringIO()
+        call_command("view_purchase_history", str(self.user.pk), stdout=out)
+        print out.getvalue()
+

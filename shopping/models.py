@@ -68,7 +68,7 @@ class ShoppingCart(models.Model):
             product = Product.objects.get(pk=product_id)
             remaining_units = product.available_inventory - quantity
 
-            if remaining_units > 0:
+            if remaining_units >= 0:
                 purchasable = Purchasable(product=product, shopping_cart=self, quantity=quantity)
                 purchasable.save()
             else:
@@ -98,11 +98,25 @@ class PurchaseHistory(models.Model):
     """
         The purchase history for a specific user.
     """
-    # TODO: perhaps the related_name should be changed to something else.
     owner = models.ForeignKey(User, related_name="purchase_history")
     created = models.DateTimeField(auto_now_add=True)
     products = models.ManyToManyField(Product, related_name="purchase_histories", through="Purchased")
     cost = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+
+    def to_string(self):
+        """
+            Returns a pretty-printed string of the values for this history instance.
+        """
+        result = ""
+        result += "\n Purchased: {0}".format(str(self.created))
+        result += "\n Total Cost: {0}".format(self.cost)
+        result += "\n Products:"
+
+        for purchased in self.purchased_set.all():
+            result += "\n"
+            result += purchased.to_string(True)
+
+        return result
 
 # --------------
 # Through Tables
@@ -125,3 +139,17 @@ class Purchased(models.Model):
     purchase_history = models.ForeignKey(PurchaseHistory, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
     cost = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+
+    def to_string(self, indentation=False):
+        """
+            Returns a pretty-printed string value of this instance.
+            :param indentation: whether or not to indent the string.
+            :return:
+        """
+        result = ""
+        indent = "\t" if indentation else ""
+        result += indent
+        result += "Product: {0}, Quantity: {1}, Total Cost: {2}".format(self.product.title,
+                                                                        self.quantity,
+                                                                        self.cost)
+        return result
